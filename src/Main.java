@@ -1,4 +1,4 @@
-import controller.Manager;
+import controller.InMemoryTasksManager;
 import model.Epic;
 import model.Status;
 import model.Subtask;
@@ -6,9 +6,10 @@ import model.Subtask;
 public class Main {
     public static void main(String[] args) {
         //Тестирование программы.
-        Manager manager = new Manager();
-
-        Epic firstEpicTest = new Epic("Сдать экзамен");
+        InMemoryTasksManager manager = new InMemoryTasksManager();
+        Test test = new Test();
+        test.testMainProgram(manager);
+        /*Epic firstEpicTest = new Epic("Сдать экзамен");
         manager.createNewEpic(firstEpicTest);
 
         Subtask subtaskMathAnalysis = new Subtask("Мат анализ");
@@ -30,6 +31,8 @@ public class Main {
         System.out.println(manager.getAllTasks());
 //        subtaskComputationalMath = manager.deleteSubtaskById(subtaskComputationalMath.getId());
         manager.deleteEpicById(firstEpicTest.getId());
+
         System.out.println();
+    }*/
     }
 }

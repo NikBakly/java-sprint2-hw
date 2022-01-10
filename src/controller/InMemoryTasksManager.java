@@ -9,14 +9,17 @@ import java.util.HashMap;
 
 import static model.Status.INPROGRESS;
 
-public class Manager {
+public class InMemoryTasksManager implements TaskManager {
     private int generationId = 0;
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private HashMap<Integer, Epic> epics = new HashMap<>();
+    // история просмотренных задач
+    private ArrayList<Task> taskHistory = new ArrayList<>();
 
 
     //    Получение списка всех задач
+    @Override
     public ArrayList<Task> getAllTasks() {
         ArrayList<Task> tasksAll = new ArrayList<>(tasks.values());
         tasksAll.addAll(subtasks.values());
@@ -24,29 +27,41 @@ public class Manager {
     }
 
     //    Получение списка всех эпиков.
+    @Override
     public ArrayList<Epic> getAllEpics() {
         return new ArrayList<>(epics.values());
     }
 
     //    Получение списка всех подзадач определённого эпика.
+    @Override
     public ArrayList<Task> getAllSubtasks(int idEpic) {
         return new ArrayList<>(epics.get(idEpic).getSubtasks());
     }
 
     //    Получение задачи любого типа по идентификатору.
+    @Override
     public Task findTaskById(int id) {
+        //добавление в историю задач
+        taskHistory.add(tasks.get(id));
         return tasks.get(id);
     }
 
+    @Override
     public Subtask findSubtaskById(int id) {
+        //добавление в историю задач
+        taskHistory.add(subtasks.get(id));
         return subtasks.get(id);
     }
 
+    @Override
     public Epic findEpicById(int id) {
+        //добавление в историю задач
+        taskHistory.add(epics.get(id));
         return epics.get(id);
     }
 
     //    Добавление новой задачи, эпика и подзадачи. Сам объект должен передаваться в качестве параметра.
+    @Override
     public void createNewTask(Task task) {
         if (task.getId() != 0)
             System.out.println("Такая задача уже существует, ее id = " + task.getId());
@@ -60,6 +75,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void createNewSubtask(Subtask subtask, Epic epic) {
         if (subtask.getId() != 0)
             System.out.println("Такая подзадача уже существует, ее id = " + subtask.getId());
@@ -77,6 +93,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void createNewEpic(Epic epic) {
         if (epic.getId() != 0)
             System.out.println("Такой эпик уже существует, ее id = " + epic.getId());
@@ -90,6 +107,7 @@ public class Manager {
     }
 
     //Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
+    @Override
     public Task updateTaskById(int id, Task task) {
         //Находим объект в словаре по его id
         if (tasks.containsKey(id)) {
@@ -107,6 +125,7 @@ public class Manager {
         }
     }
 
+    @Override
     public Subtask updateSubtaskById(int id, Subtask subtask) {
         if (subtasks.containsKey(id)) {
             Subtask value = subtasks.get(id);
@@ -137,6 +156,7 @@ public class Manager {
         }
     }
 
+    @Override
     public Epic updateEpicById(int id, Epic epic) {
         if (tasks.containsKey(id)) {
             Epic value = epics.get(id);
@@ -154,12 +174,14 @@ public class Manager {
     }
 
     //Удаление ранее добавленных задач — всех и по идентификатору.
+    @Override
     public void deleteTaskById(int id) {
         //удаляем из словаря задач определенную задачу по id
         tasks.remove(id);
         System.out.println("Успешное удалиние Задачи id = " + id);
     }
 
+    @Override
     public void deleteSubtaskById(int id) {
         //удаляем из словаря подзадач определенную подзадачу по id
         subtasks.remove(id);
@@ -168,6 +190,7 @@ public class Manager {
         System.out.println("Успешное удалиние Подзадачи id = " + id);
     }
 
+    @Override
     public void deleteEpicById(int id) {
         //Удаляем из словаря эпиков определеннуй эпик по id
         epics.remove(id);
@@ -178,4 +201,16 @@ public class Manager {
         }
         System.out.println("Успешное удалиние Эпики id = " + id);
     }
+
+    @Override
+    public ArrayList<Task> history() {
+        //Проверка на ограничение размера истории
+        if(taskHistory.size() > 10){
+            int countDelete = taskHistory.size() - 10;
+            //удаление одного элемента или нескольких элементов
+            taskHistory.subList(0, countDelete).clear();
+        }
+        return taskHistory;
+    }
+
 }

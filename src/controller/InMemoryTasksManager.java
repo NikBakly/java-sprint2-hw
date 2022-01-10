@@ -11,11 +11,11 @@ import static model.Status.INPROGRESS;
 
 public class InMemoryTasksManager implements TaskManager {
     private int generationId = 0;
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
     // история просмотренных задач
-    private ArrayList<Task> taskHistory = new ArrayList<>();
+    private final ArrayList<Task> taskHistory = new ArrayList<>();
 
 
     //    Получение списка всех задач
@@ -205,7 +205,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public ArrayList<Task> history() {
         //Проверка на ограничение размера истории
-        if(taskHistory.size() > 10){
+        if (taskHistory.size() > 10) {
             int countDelete = taskHistory.size() - 10;
             //удаление одного элемента или нескольких элементов
             taskHistory.subList(0, countDelete).clear();

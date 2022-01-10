@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
     //Хранение в списку всех подзадач эпика
-    private ArrayList<Subtask> subtasks = new ArrayList<>();
+    private final ArrayList<Subtask> subtasks = new ArrayList<>();
 
     //Создания с описанием
     public Epic(String name, String specification) {

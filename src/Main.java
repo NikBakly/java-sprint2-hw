@@ -23,32 +23,22 @@ public class Main {
         manager.createNewSubtask(subtaskComputationalMath, firstEpicTest);
         manager.createNewSubtask(subtaskEnglish, firstEpicTest);
 
-        //Создаем задачи
-        Task firstTask = new Task("Сдать кровь");
-        Task secondTask = new Task("Сходить в магазин");
-        Task thirdTask = new Task("Погулять с собаками");
-        Task fourthTask = new Task("Выкинуть мусор");
-
-        //Добавляем задачи в список задач
-        manager.createNewTask(firstTask);
-        manager.createNewTask(secondTask);
-        manager.createNewTask(thirdTask);
-        manager.createNewTask(fourthTask);
-
         //Проверка истории просмотров задач
         System.out.println("Эпик: " + manager.findEpicById(firstEpicTest.getId()));
 
         System.out.println("Первая подзадача: " + manager.findSubtaskById(subtaskMathAnalysis.getId()));
+        System.out.println("Первая подзадача: " + manager.findSubtaskById(subtaskMathAnalysis.getId()));
+        System.out.println("Первая подзадача: " + manager.findSubtaskById(subtaskMathAnalysis.getId()));
+        System.out.println("Первая подзадача: " + manager.findSubtaskById(subtaskMathAnalysis.getId()));
+        System.out.println("Первая подзадача: " + manager.findSubtaskById(subtaskMathAnalysis.getId()));
+        System.out.println("Вторая подзадача: " + manager.findSubtaskById(subtaskComputationalMath.getId()));
+        System.out.println("Вторая подзадача: " + manager.findSubtaskById(subtaskComputationalMath.getId()));
+        System.out.println("Вторая подзадача: " + manager.findSubtaskById(subtaskComputationalMath.getId()));
         System.out.println("Вторая подзадача: " + manager.findSubtaskById(subtaskComputationalMath.getId()));
         System.out.println("Третья подзадача: " + manager.findSubtaskById(subtaskEnglish.getId()));
         System.out.println("Третья подзадача: " + manager.findSubtaskById(subtaskEnglish.getId()));
-
-        System.out.println("Первая задача: " + manager.findTaskById(firstTask.getId()));
-        System.out.println("Вторая задача: " + manager.findTaskById(secondTask.getId()));
-        System.out.println("Третья задача: " + manager.findTaskById(thirdTask.getId()));
-        System.out.println("Третья задача: " + manager.findTaskById(thirdTask.getId()));
-        System.out.println("Третья задача: " + manager.findTaskById(thirdTask.getId()));
-        System.out.println("Четвертая задача: " + manager.findTaskById(fourthTask.getId()));
+        System.out.println("Третья подзадача: " + manager.findSubtaskById(subtaskEnglish.getId()));
+        System.out.println("Третья подзадача: " + manager.findSubtaskById(subtaskEnglish.getId()));
 
         //вывод истории
         System.out.println(manager.history());

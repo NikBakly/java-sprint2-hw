@@ -41,21 +41,19 @@ public class InMemoryTasksManager implements TaskManager {
     //    Получение задачи любого типа по идентификатору.
     @Override
     public Task findTaskById(int id) {
-        //добавление в историю задач
-        taskHistory.add(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
     public Subtask findSubtaskById(int id) {
-        //добавление в историю задач
+        //добавление в историю просмотренных задач
         taskHistory.add(subtasks.get(id));
         return subtasks.get(id);
     }
 
     @Override
     public Epic findEpicById(int id) {
-        //добавление в историю задач
+        //добавление в историю просмотренных задач
         taskHistory.add(epics.get(id));
         return epics.get(id);
     }

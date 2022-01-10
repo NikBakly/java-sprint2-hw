@@ -202,7 +202,7 @@ public class InMemoryTasksManager implements TaskManager {
         System.out.println("Успешное удалиние Эпики id = " + id);
     }
 
-    // вывод истории просмотренных задач
+    //Вывод истории просмотренных задач
     @Override
     public ArrayList<Task> history() {
         //Проверка на ограничение размера истории

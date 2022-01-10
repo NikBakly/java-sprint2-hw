@@ -44,6 +44,6 @@ public interface TaskManager {
 
     void deleteEpicById(int id);
 
-    // вывод истории просмотренных задач
+    //Вывод истории просмотренных задач
     ArrayList<Task> history();
 }

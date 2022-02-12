@@ -43,6 +43,8 @@ public class InMemoryTasksManager implements TaskManager {
     //    Получение задачи любого типа по идентификатору.
     @Override
     public Task findTaskById(int id) {
+        //добавление в историю просмотренных задач
+        taskHistory.add(tasks.get(id));
         return tasks.get(id);
     }
 
@@ -176,6 +178,8 @@ public class InMemoryTasksManager implements TaskManager {
     //Удаление ранее добавленных задач — всех и по идентификатору.
     @Override
     public void deleteTaskById(int id) {
+        //Удаляем из истории просмотренных задач
+        taskHistory.remove(id);
         //удаляем из словаря задач определенную задачу по id
         tasks.remove(id);
         System.out.println("Успешное удалиние Задачи id = " + id);

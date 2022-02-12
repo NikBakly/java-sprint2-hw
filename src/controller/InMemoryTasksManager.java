@@ -6,8 +6,10 @@ import model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static model.Status.INPROGRESS;
+
 
 public class InMemoryTasksManager implements TaskManager {
     private int generationId = 0;
@@ -15,7 +17,7 @@ public class InMemoryTasksManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     // история просмотренных задач
-    private final ArrayList<Task> taskHistory = new ArrayList<>();
+    private final InMemoryHistoryManager taskHistory = new InMemoryHistoryManager();
 
 
     //    Получение списка всех задач
@@ -181,35 +183,35 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void deleteSubtaskById(int id) {
-        //удаляем из словаря подзадач определенную подзадачу по id
-        subtasks.remove(id);
+        //Удаляем из истории просмотренных задач
+        taskHistory.remove(id);
         //Удаляем у списка Эпика подзадачу
         epics.get(subtasks.get(id).getEpic().getId()).getSubtasks().remove(subtasks.get(id));
+        //удаляем из словаря подзадач определенную подзадачу по id
+        subtasks.remove(id);
         System.out.println("Успешное удалиние Подзадачи id = " + id);
     }
 
     @Override
     public void deleteEpicById(int id) {
-        //Удаляем из словаря эпиков определеннуй эпик по id
-        epics.remove(id);
-        //В цикле пробегаемся по объектам подзадач и "затераем" ссылку на эпик, если id одинаковые
-        for (Subtask value : subtasks.values()) {
-            if (value.getEpic().getId() == id)
-                value.setEpic(null);
+        //Удалим эпик из истории просмотренных задач
+        taskHistory.remove(id);
+
+        //удалить подзадачи эпика из HashMap
+        for (Subtask subtask : epics.get(id).getSubtasks()) {
+            //удаляем подзадачи из истории просмотренных задач
+            taskHistory.remove(subtask.getId());
+            subtasks.remove(subtask.getId());
         }
-        System.out.println("Успешное удалиние Эпики id = " + id);
+        //Удалить из HashMap эпик по id
+        epics.remove(id);
+        System.out.println("Успешное удаление Эпики id = " + id);
     }
 
     //Вывод истории просмотренных задач
     @Override
-    public ArrayList<Task> history() {
-        //Проверка на ограничение размера истории
-        if (taskHistory.size() > 10) {
-            int countDelete = taskHistory.size() - 10;
-            //удаление одного элемента или нескольких элементов
-            taskHistory.subList(0, countDelete).clear();
-        }
-        return taskHistory;
+    public List<Task> history() {
+        return taskHistory.getHistory();
     }
 
 }

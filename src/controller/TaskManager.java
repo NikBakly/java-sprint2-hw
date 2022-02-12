@@ -5,6 +5,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     //    Получение списка всех задач
@@ -45,5 +46,5 @@ public interface TaskManager {
     void deleteEpicById(int id);
 
     //Вывод истории просмотренных задач
-    ArrayList<Task> history();
+    List<Task> history();
 }

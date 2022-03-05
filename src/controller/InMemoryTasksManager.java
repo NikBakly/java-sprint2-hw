@@ -12,12 +12,12 @@ import static model.Status.INPROGRESS;
 
 
 public class InMemoryTasksManager implements TaskManager {
-    private int generationId = 0;
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected int generationId = 0;
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
     // история просмотренных задач
-    private final InMemoryHistoryManager taskHistory = new InMemoryHistoryManager();
+    protected final InMemoryHistoryManager taskHistory = new InMemoryHistoryManager();
 
 
     //    Получение списка всех задач
@@ -160,7 +160,7 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public Epic updateEpicById(int id, Epic epic) {
-        if (tasks.containsKey(id)) {
+        if (epics.containsKey(id)) {
             Epic value = epics.get(id);
             //обновление объекта
             value.setName(epic.getName());

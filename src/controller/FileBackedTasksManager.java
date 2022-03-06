@@ -85,127 +85,79 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void createNewTask(Task task) {
         super.createNewTask(task);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public void createNewSubtask(Subtask subtask, Epic epic) {
         super.createNewSubtask(subtask, epic);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public void createNewEpic(Epic epic) {
         super.createNewEpic(epic);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public Task findTaskById(int id) {
         Task task = super.findTaskById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return task;
     }
 
     @Override
     public Subtask findSubtaskById(int id) {
         Subtask subtask = super.findSubtaskById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return subtask;
     }
 
     @Override
     public Epic findEpicById(int id) {
         Epic epic = super.findEpicById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return epic;
     }
 
     @Override
     public Task updateTaskById(int id, Task task) {
         Task updateTask = super.updateTaskById(id, task);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return updateTask;
     }
 
     @Override
     public Subtask updateSubtaskById(int id, Subtask subtask) {
         Subtask updatedSubtask = super.updateSubtaskById(id, subtask);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return updatedSubtask;
     }
 
     @Override
     public Epic updateEpicById(int id, Epic epic) {
         Epic updateEpic = super.updateEpicById(id, epic);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
         return updateEpic;
     }
 
     @Override
     public void deleteTaskById(int id) {
         super.deleteTaskById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public void deleteSubtaskById(int id) {
         super.deleteSubtaskById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public void deleteEpicById(int id) {
         super.deleteEpicById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     // Возвращает эпик
@@ -215,38 +167,30 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     //Сохраняет текущие состояние менеджера в указанный файл
-    private void save() throws ManagerSaveException {
+    private void save() {
         try (Writer fileWriterStart = new FileWriter(file)) {
             fileWriterStart.write(START_LINE);
-        } catch (IOException e) {
-            throw new ManagerSaveException();
-        }
-        try (Writer fileWriterTask = new FileWriter(file, true)) {
+
             for (Task task : tasks.values()) {
-                fileWriterTask.write(toString(task) + "\n");
+                fileWriterStart.write(toString(task) + "\n");
             }
             for (Epic epic : epics.values()) {
-                fileWriterTask.write(toString(epic) + "\n");
+                fileWriterStart.write(toString(epic) + "\n");
             }
             for (Subtask subtask : subtasks.values()) {
-                fileWriterTask.write(toString(subtask) + "\n");
+                fileWriterStart.write(toString(subtask) + "\n");
             }
-        } catch (IOException e) {
-            throw new ManagerSaveException();
-        }
-        try (Writer fileWriterHistoryTask = new FileWriter(file, true)) {
             if (taskHistory.getHistory() != null)
-                fileWriterHistoryTask.write(toStringHistory(taskHistory));
+                fileWriterStart.write(toStringHistory(taskHistory));
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
-
     }
 
     //Сохраняет задачу в строку
     private String toString(Task task) {
         String typeTask = task.getClass().getSimpleName();
-        String result = null;
+        String result;
         if (typeTask.equals("Task") || typeTask.equals("Epic")) {
             result = String.format("%d,%s,%s,%s,%s,",
                     task.getId(),

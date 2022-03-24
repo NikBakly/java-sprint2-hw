@@ -84,7 +84,6 @@ public class InMemoryHistoryManager implements HistoryManager {
                     head = head.getNext();
                     head.getPrev().setNext(null);
                     head.setPrev(null);
-
                 }
             } else if (value == tail) {
                 if (size == 2) {

@@ -1,9 +1,11 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
-    //Хранение в списку всех подзадач эпика
+    //Хранение в списке всех подзадач эпика
     private final ArrayList<Subtask> subtasks = new ArrayList<>();
 
     //Создания с описанием
@@ -11,7 +13,7 @@ public class Epic extends Task {
         super(name, specification);
     }
 
-    //Создания без описанием
+    //Создания без описания
     public Epic(String name) {
         super(name);
     }
@@ -53,4 +55,33 @@ public class Epic extends Task {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subtasks, epic.subtasks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtasks);
+    }
+
+    @Override
+    public void setDuration(long minutes) {
+        //Обработка продолжительности задачи,
+        //Продолжительность эпика - сумма продолжительности всех его подзадач.
+        if(!subtasks.isEmpty()){
+            for (Subtask subtask : subtasks) {
+                duration = duration.plus(subtask.getDuration());
+            }
+        }
+    }
+
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        super.setStartTime(startTime);
+    }
 }

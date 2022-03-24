@@ -235,8 +235,13 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             case "Subtask" -> {
                 task = new Subtask(parameters[2], parameters[4], Status.valueOf(parameters[3]));
                 task.setId(Integer.parseInt(parameters[0]));
-                if (epics.containsKey(Integer.parseInt(parameters[5])))
-                    ((Subtask) task).setEpic(getEpicById(Integer.parseInt(parameters[5])));
+                int idEpic = Integer.parseInt(parameters[5]);
+                if (epics.containsKey(idEpic)) {
+                    //Привязали эпик к подзадаче
+                    ((Subtask) task).setEpic(getEpicById(idEpic));
+                    //Добавили к эпику подзадачу
+                    getEpicById(idEpic).getSubtasks().add((Subtask) task);
+                }
             }
         }
         return task;
@@ -310,4 +315,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public File getFile() {
         return file;
     }
+
+
 }

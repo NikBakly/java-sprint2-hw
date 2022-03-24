@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static model.Status.NEW;
@@ -13,6 +15,26 @@ public class Task {
     protected int id = 0; //значение 0 - дефолтное состояние индификатора,которое мы будем использовать при проверке
     //Статус, отображающий её прогресс. Мы будем выделять следующие этапы жизни задачи:
     protected Status status;
+    //продолжительность задачи, оценка того, сколько времени она займёт
+    protected Duration duration;
+    //дата, когда предполагается приступить к выполнению задачи
+    protected LocalDateTime startTime;
+
+    public void setDuration(long minutes) {
+        this.duration = duration.plusMinutes(minutes);
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime(){
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
 
     //Если сушествует описание задачи
     public Task(String name, String specification) {
@@ -21,14 +43,14 @@ public class Task {
         this.status = NEW;
     }
 
-    //Если нету описания задачи
+    //Если нет описания задачи
     public Task(String name) {
         this.name = name;
         this.specification = null;
         this.status = NEW;
     }
 
-    //Конструктор для обновление задачи
+    //Конструктор для обновления задачи
     public Task(String name, String specification, Status status) {
         if (name != null)
             this.name = name;

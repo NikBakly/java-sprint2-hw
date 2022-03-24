@@ -4,6 +4,9 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +26,7 @@ public class InMemoryTasksManager implements TaskManager {
     //    Получение списка всех задач
     @Override
     public ArrayList<Task> getAllTasks() {
-        ArrayList<Task> tasksAll = new ArrayList<>(tasks.values());
-        tasksAll.addAll(subtasks.values());
-        return tasksAll;
+        return new ArrayList<>(tasks.values());
     }
 
     //    Получение списка всех эпиков.
@@ -133,11 +134,12 @@ public class InMemoryTasksManager implements TaskManager {
             Subtask value = subtasks.get(id);
             //Если в объекте subtask обновленная ссылка на epic, то мы меняем ссылку и обновляем массив в
             if (!value.getEpic().equals(subtask.getEpic()) && subtask.getEpic() != null) {
-                //По старому id удалили подзадачу из старого списака эпики
+                //По старому id удалили подзадачу из старого списка эпики
                 epics.get(value.getEpic().getId()).getSubtasks().remove(value);
                 //По новому id добавили подзадачу в список эпика
-                epics.get(subtask.getEpic().getId()).getSubtasks().add(value);
-                //Обновляем ссылку на эпик в объекту подзадача
+                epics.get(subtask.getEpic().getId()).getSubtasks().add(subtask);
+
+                //Обновляем ссылку на эпик в объекте подзадача
                 value.setEpic(subtask.getEpic());
             }
             //обновление объекта

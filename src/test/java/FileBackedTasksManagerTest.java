@@ -19,7 +19,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @Test
-    public void shouldDownloadFromFile_WithEmptyTaskList() {
+    public void test1_shouldDownloadFromFile_WithEmptyTaskList() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -35,7 +35,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @Test
-    public void shouldDownloadFromFile_WithTaskList() {
+    public void test2_shouldDownloadFromFile_WithTaskList() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -57,7 +57,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @Test
-    public void shouldDownloadFromFile_WithoutSubtasksEpic() {
+    public void test3_shouldDownloadFromFile_WithoutSubtasksEpic() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -73,7 +73,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @Test
-    public void shouldDownloadFromFile_EpicWithSubtasks() {
+    public void test4_shouldDownloadFromFile_EpicWithSubtasks() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -98,7 +98,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
 
     @Test
-    public void shouldDownloadFromFile_WithEmptyHistoryList() {
+    public void test5_shouldDownloadFromFile_WithEmptyHistoryList() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -114,7 +114,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     }
 
     @Test
-    public void shouldDownloadFromFile_WithHistoryList() {
+    public void test6_shouldDownloadFromFile_WithHistoryList() {
         //Given
         String path = "src/main/resources/history.csv";
         TaskManager firstManager = managers.getFileBackedTasksManager(path);
@@ -146,6 +146,49 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
         //Then
         Assertions.assertEquals(5, secondManager.history().size());
+    }
+
+    @Test
+    void test7_checkingRecoveryFromCVCFile() {
+        String path = "src/main/resources/history.csv";
+        TaskManager firstTaskManager = new FileBackedTasksManager(path);
+
+        Epic epic = new Epic("testEpic");
+        Subtask subtask1 = new Subtask("test1");
+        Subtask subtask2 = new Subtask("test2");
+        //Назначаем продолжительность подзадач
+        subtask1.setDuration(60);
+        subtask2.setDuration(120);
+        //назначение начало работы
+        subtask1.setStartTime("25.03.2022|13:00");
+        subtask2.setStartTime("25.03.2022|14:01");
+        //связываем эпики с подзадачами и наоборот
+        firstTaskManager.createNewEpic(epic);
+        firstTaskManager.createNewSubtask(subtask1, epic);
+        firstTaskManager.createNewSubtask(subtask2, epic);
+
+        FileBackedTasksManager secondTaskManager = new FileBackedTasksManager(path);
+        secondTaskManager.downloadFromFile();
+
+        Assertions.assertEquals(
+                "25.03.2022|13:00",
+                secondTaskManager
+                        .getEpicById(epic.getId())
+                        .getStartTime()
+                        .format(Task.formatter)
+        );
+        Assertions.assertEquals(
+                "25.03.2022|16:01",
+                secondTaskManager
+                        .getEpicById(epic.getId())
+                        .getEndTime().format(Task.formatter)
+        );
+        Assertions.assertEquals(
+                180,
+                secondTaskManager
+                        .getEpicById(epic.getId())
+                        .getDuration().toMinutes()
+        );
     }
 
 }

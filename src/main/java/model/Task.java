@@ -2,6 +2,7 @@ package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import static model.Status.NEW;
@@ -12,31 +13,55 @@ public class Task {
     //Описание, в котором раскрываются детали.
     protected String specification;
     //Уникальный идентификационный номер задачи, по которому её можно будет найти.
-    protected int id = 0; //значение 0 - дефолтное состояние индификатора,которое мы будем использовать при проверке
+    protected int id = 0; //значение 0 - дефолтное состояние индификатора, которое мы будем использовать при проверке
     //Статус, отображающий её прогресс. Мы будем выделять следующие этапы жизни задачи:
     protected Status status;
     //продолжительность задачи, оценка того, сколько времени она займёт
     protected Duration duration;
     //дата, когда предполагается приступить к выполнению задачи
     protected LocalDateTime startTime;
+    //формат дата и времени для работы
+    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy|HH:mm");
 
     public void setDuration(long minutes) {
-        this.duration = duration.plusMinutes(minutes);
+        this.duration = Duration.ofMinutes(minutes);
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = LocalDateTime.parse(startTime, formatter);
     }
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime(){
-        return startTime.plus(duration);
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if(duration == null)
+            return null;
+        if (startTime != null) {
+            return startTime.plus(duration);
+        }
+        return null;
     }
 
     public Duration getDuration() {
         return duration;
     }
 
-    //Если сушествует описание задачи
+    public void resetStartTimeAndDuration() {
+        startTime = null;
+        duration = null;
+    }
+
+    //Если существует описание задачи
     public Task(String name, String specification) {
         this.name = name;
         this.specification = specification;

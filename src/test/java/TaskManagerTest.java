@@ -1,20 +1,31 @@
+import controller.FileBackedTasksManager;
+import controller.InMemoryTasksManager;
 import controller.TaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 abstract public class TaskManagerTest<T extends TaskManager> {
     private final T object;
+    private final DateTimeFormatter formatter = Task.formatter;
+    TaskManager taskManager;
 
     public TaskManagerTest(T object) {
         this.object = object;
     }
+    @BeforeEach
+    void createTaskManager(){
+        taskManager = object;
+    }
 
     @Test
-    public void shouldGetAllEpics() {
-        TaskManager taskManager = object;
+    void test1_shouldGetAllEpics() {
         Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
@@ -29,8 +40,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldFindTaskById() {
-        TaskManager taskManager = object;
+    void test2_shouldFindTaskById() {
         Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
@@ -38,8 +48,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldFindSubtaskById() {
-        TaskManager taskManager = object;
+    void test3_shouldFindSubtaskById() {
         Epic epic = new Epic("Выпить стакан воды");
         Subtask drinkWater = new Subtask("Выпить воду из стакана");
 
@@ -50,8 +59,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldFindEpicById() {
-        TaskManager taskManager = object;
+    void test4_shouldFindEpicById() {
         Epic epic = new Epic("Выпить стакан воды");
 
         taskManager.createNewEpic(epic);
@@ -60,8 +68,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldCreateNewTask() {
-        TaskManager taskManager = object;
+    void test5_shouldCreateNewTask() {
         Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
@@ -76,8 +83,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotCreateNewTask() {
-        TaskManager taskManager = object;
+    void test6_shouldDoNotCreateNewTask() {
         Task run = new Task("Пробежать");
         taskManager.createNewTask(run);
         //пробуем создать повторную задачу в менеджере
@@ -92,8 +98,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldCreateNewSubtask() {
-        TaskManager taskManager = object;
+    void test7_shouldCreateNewSubtask() {
         Epic epic = new Epic("Выпить стакан воды");
         Subtask drinkWater = new Subtask("Выпить воду из стакана");
 
@@ -107,8 +112,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotCreateNewSubtask() {
-        TaskManager taskManager = object;
+    void test8_shouldDoNotCreateNewSubtask() {
         Epic epic = new Epic("Выпить стакан воды");
         Subtask drinkWater = new Subtask("Выпить воду из стакана");
         taskManager.createNewEpic(epic);
@@ -125,8 +129,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldCreateNewEpic() {
-        TaskManager taskManager = object;
+    void test9_shouldCreateNewEpic() {
         Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
@@ -141,8 +144,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotCreateNewEpic() {
-        TaskManager taskManager = object;
+    void test10_shouldDoNotCreateNewEpic() {
         Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
         //пробуем создать повторный эпик в менеджере
@@ -157,8 +159,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldUpdateTaskById() {
-        TaskManager taskManager = object;
+    void test11_shouldUpdateTaskById() {
         Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
@@ -170,8 +171,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotUpdateTaskById() {
-        TaskManager taskManager = object;
+    void test12_shouldDoNotUpdateTaskById() {
         Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
@@ -179,8 +179,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldUpdateSubtasksByIdWithoutEpic() {
-        TaskManager taskManager = object;
+    void test13_shouldUpdateSubtasksByIdWithoutEpic() {
         Epic epic = new Epic("Выпить стакан воды");
         Subtask drinkWater = new Subtask("Выпить воду из стакана");
 
@@ -201,9 +200,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldUpdateSubtasksByIdWithEpic() {
-        TaskManager taskManager = object;
-
+    void test14_shouldUpdateSubtasksByIdWithEpic() {
         Epic readNews = new Epic("Прочитать новости");
         Subtask readNewsPapers = new Subtask("Читать новостную газету");
         taskManager.createNewEpic(readNews);
@@ -227,8 +224,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotUpdateSubtasksById() {
-        TaskManager taskManager = object;
+    void test15_shouldDoNotUpdateSubtasksById() {
         Epic readNews = new Epic("Прочитать новости");
         Subtask readNewsPapers = new Subtask("Читать новостную газету");
         taskManager.createNewEpic(readNews);
@@ -240,8 +236,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldUpdateEpicById() {
-        TaskManager taskManager = object;
+    void test16_shouldUpdateEpicById() {
         Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
@@ -258,8 +253,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDoNotUpdateEpicById() {
-        TaskManager taskManager = object;
+    void test17_shouldDoNotUpdateEpicById() {
         Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
         //проверка на null, если обновить не существующий эпик по id
@@ -267,8 +261,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDeleteTaskById() {
-        TaskManager taskManager = object;
+    void test18_shouldDeleteTaskById() {
         Task jump = new Task("Прыгнуть");
         //добавили задачу
         taskManager.createNewTask(jump);
@@ -279,8 +272,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDeleteSubtaskById() {
-        TaskManager taskManager = object;
+    void test19_shouldDeleteSubtaskById() {
         Epic winOlympics = new Epic("Выиграть олимпиаду");
         Subtask time = new Subtask("Уложиться во время");
         //добавили эпик и подзадачу
@@ -295,8 +287,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldDeleteEpicById() {
-        TaskManager taskManager = object;
+    void test20_shouldDeleteEpicById() {
         Epic winOlympics = new Epic("Выиграть олимпиаду");
         Subtask time = new Subtask("Уложиться во время");
         //добавили эпик и подзадачу
@@ -309,8 +300,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void shouldGetHistory() {
-        TaskManager taskManager = object;
+    void test20_shouldGetHistory() {
         Task task = new Task("дописать тесты");
         taskManager.createNewTask(task);
         //добавим в историю task

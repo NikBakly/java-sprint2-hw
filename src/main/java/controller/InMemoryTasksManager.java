@@ -4,12 +4,8 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static model.Status.INPROGRESS;
 
@@ -21,6 +17,7 @@ public class InMemoryTasksManager implements TaskManager {
     protected final HashMap<Integer, Epic> epics = new HashMap<>();
     // история просмотренных задач
     protected final InMemoryHistoryManager taskHistory = new InMemoryHistoryManager();
+    protected TreeSet<Task> sortedTasks;
 
 
     //    Получение списка всех задач
@@ -74,6 +71,7 @@ public class InMemoryTasksManager implements TaskManager {
             task.setId(idTask);
             //Добавляем в словарь
             tasks.put(idTask, task);
+            checkingIntersection(task);
             System.out.println("Успешно создана задача;");
         }
     }
@@ -90,8 +88,11 @@ public class InMemoryTasksManager implements TaskManager {
             subtask.setEpic(epic);
             //Добавляем в словарь
             subtasks.put(idSubtask, subtask);
+            checkingIntersection(subtask);
             //По id эпика добавим в массив объект Subtask
-            epics.get(subtask.getEpic().getId()).getSubtasks().add(subtask);
+            epics.get(epic.getId()).getSubtasks().add(subtask);
+            //обновляем startTime и duration
+            epics.get(epic.getId()).updateStartTimeAndDuration();
             System.out.println("Успешно создана подзадача;");
         }
     }
@@ -119,6 +120,9 @@ public class InMemoryTasksManager implements TaskManager {
             value.setName(task.getName());
             value.setSpecification(task.getSpecification());
             value.setStatus(task.getStatus());
+            checkingIntersection(task);
+            value.setStartTime(task.getStartTime());
+            value.setDuration(task.getDuration());
 
             System.out.println("Задача по id = " + id + " успешно обновлено");
             return value;
@@ -146,6 +150,9 @@ public class InMemoryTasksManager implements TaskManager {
             value.setName(subtask.getName());
             value.setSpecification(subtask.getSpecification());
             value.setStatus(subtask.getStatus());
+            checkingIntersection(subtask);
+            value.setStartTime(subtask.getStartTime());
+            value.setDuration(subtask.getDuration());
 
             System.out.println("Подзадача по id = " + id + " успешно обновлено");
             //проверяем статус эпика
@@ -168,7 +175,6 @@ public class InMemoryTasksManager implements TaskManager {
             value.setName(epic.getName());
             value.setSpecification(epic.getSpecification());
             value.setStatus(epic.getStatus());
-
             System.out.println("Эпик по id = " + id + " успешно обновлено");
             return value;
         } else {
@@ -220,4 +226,79 @@ public class InMemoryTasksManager implements TaskManager {
         return taskHistory.getHistory();
     }
 
+    //проверка пересечения
+    private void checkingIntersection(Task task) {
+        boolean isIntersection = false;
+        for (Task prioritizedTask : getPrioritizedTasks()) {
+            if (
+                    !task.equals(prioritizedTask)
+                    && task.getStartTime() != null
+                    && prioritizedTask.getEndTime() != null
+                    && (task.getStartTime().equals(prioritizedTask.getEndTime())
+                        || task.getStartTime().isBefore(prioritizedTask.getEndTime()))
+            ) {
+                isIntersection = true;
+//                break;
+            }
+        }
+        if (isIntersection) {
+            System.out.println(
+                    "Обнаружилось пересечение по времени у объекта с id: " + task.getId()
+                            + ", нужно поменять продолжительность или время старта"
+            );
+            //удаление из дерева множеств, т пересекается с другими задачами
+            sortedTasks.remove(task);
+            //сброс времени и продолжительности, чтобы задачи не пересекались
+            task.resetStartTimeAndDuration();
+        }
+    }
+
+    //возвращающий список задач и подзадач в отсортированном порядке по приоритету - то есть по startTime
+    public List<Task> getPrioritizedTasks() {
+        //если множество определенно и размер множества должно сор
+        if (sortedTasks != null && sortedTasks.size() == getAllTasks().size()) {
+            List<Task> allTasks = new ArrayList<>(sortedTasks);
+            allTasks.addAll(getListTasksWithoutStarTime());
+            return allTasks;
+        } else {
+            List<Task> allTasks = getListTasksWithStarTime()
+                    .stream()
+                    .sorted(Comparator.comparing(Task::getStartTime))
+                    .collect(Collectors.toList());
+            sortedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+            sortedTasks.addAll(allTasks);
+            allTasks.addAll(getListTasksWithoutStarTime());
+            return allTasks;
+        }
+    }
+
+    //Возращает список всех подзадач
+    private ArrayList<Task> getListAllTasks() {
+        ArrayList<Task> allTasks = new ArrayList<>();
+        allTasks.addAll(tasks.values());
+        allTasks.addAll(subtasks.values());
+        return allTasks;
+    }
+
+    //возвращает список задач без начального временем
+    private List<Task> getListTasksWithoutStarTime() {
+        ArrayList<Task> tasksWithoutStartTime = new ArrayList<>();
+        ArrayList<Task> allTasks = getListAllTasks();
+        for (Task task : allTasks) {
+            if (task.getStartTime() == null)
+                tasksWithoutStartTime.add(task);
+        }
+        return tasksWithoutStartTime;
+    }
+
+    //возвращает список задач с начальным временем
+    private List<Task> getListTasksWithStarTime() {
+        ArrayList<Task> tasksWithStartTime = new ArrayList<>();
+        ArrayList<Task> allTasks = getListAllTasks();
+        for (Task task : allTasks) {
+            if (task.getStartTime() != null)
+                tasksWithStartTime.add(task);
+        }
+        return tasksWithStartTime;
+    }
 }

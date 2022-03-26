@@ -6,77 +6,14 @@ import model.Subtask;
 import model.Task;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
     private final File file;
-    public static final String START_LINE = "id,type,name,status,description,epic\n";
+    public static final String START_LINE = "id,type,name,status,description,startTime,durationMinutes,epic\n";
 
-    public static void main(String[] args) {
-        String path = "src\\res\\history.csv";
-        //Тестирование программы.
-        Managers managers = new Managers();
-        TaskManager firstManager = managers.getFileBackedTasksManager(path);
-
-        //Создаем две задачи
-        Task doShop = new Task("Сделать покупку");
-        Task comeHome = new Task("Прийти Домой");
-        firstManager.createNewTask(doShop);
-        firstManager.createNewTask(comeHome);
-
-        //создаем первый эпик
-        Epic takeExams = new Epic("Сдать экзамены");
-        firstManager.createNewEpic(takeExams);
-
-        //Создаем подзадачи для первого эпика
-        Subtask subtaskMathAnalysis = new Subtask("Мат анализ");
-        Subtask subtaskComputationalMath = new Subtask("Выч мат");
-        Subtask subtaskEnglish = new Subtask("Английский");
-
-        //Добавляем подзадачи в список подзадач к первому эпику
-        firstManager.createNewSubtask(subtaskMathAnalysis, takeExams);
-        firstManager.createNewSubtask(subtaskComputationalMath, takeExams);
-        firstManager.createNewSubtask(subtaskEnglish, takeExams);
-
-        //создаем второй эпик, у которого не будет подзадач
-        Epic makeEats = new Epic("Приготовить еду");
-        firstManager.createNewEpic(makeEats);
-
-        firstManager.updateTaskById(doShop.getId(),
-                new Task(doShop.getName(), doShop.getSpecification(), Status.DONE));
-        firstManager.updateEpicById(makeEats.getId(),
-                new Epic(makeEats.getName(), makeEats.getSpecification(), Status.INPROGRESS));
-
-        /*Запрашиваем созданные задачи в разном порядке и
-                после каждого запроса выводим историю и убеждаемся, что в ней нет повторов*/
-        System.out.println("Эпик: " + firstManager.findEpicById(takeExams.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Подзадача: " + firstManager.findSubtaskById(subtaskMathAnalysis.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Подзадача: " + firstManager.findSubtaskById(subtaskMathAnalysis.getId()));
-        System.out.println(firstManager.history());
-
-        System.out.println("Подзадача: " + firstManager.findSubtaskById(subtaskEnglish.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Задача: " + firstManager.findTaskById(doShop.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Подзадача: " + firstManager.findSubtaskById(subtaskComputationalMath.getId()));
-        System.out.println(firstManager.history());
-
-        System.out.println("Эпик: " + firstManager.findEpicById(makeEats.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Задача: " + firstManager.findTaskById(comeHome.getId()));
-        System.out.println(firstManager.history());
-        System.out.println("Подзадача: " + firstManager.findSubtaskById(subtaskEnglish.getId()));
-        System.out.println(firstManager.history());
-
-        //Создаем новый FIleBackedTasksManager
-        TaskManager secondManager = managers.getFileBackedTasksManager(path);
-        ((FileBackedTasksManager) secondManager).downloadFromFile();
-        System.out.println();
-
-    }
 
     public FileBackedTasksManager(String path) {
         file = new File(path);
@@ -191,21 +128,40 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     private String toString(Task task) {
         String typeTask = task.getClass().getSimpleName();
         String result;
-        if (typeTask.equals("Task") || typeTask.equals("Epic")) {
-            result = String.format("%d,%s,%s,%s,%s,",
-                    task.getId(),
-                    typeTask,
-                    task.getName(),
-                    task.getStatus(),
-                    task.getSpecification()
-            );
+        String startTime;
+        long durationMinutes;
+
+        if (task.getStartTime() != null) {
+            startTime = task.getStartTime().format(Task.formatter);
         } else {
-            result = String.format("%d,%s,%s,%s,%s,%d",
+            startTime = "null";
+        }
+
+        if (task.getDuration() != null) {
+            durationMinutes = task.getDuration().toMinutes();
+        } else {
+            durationMinutes = 0;
+        }
+
+        if (typeTask.equals("Task") || typeTask.equals("Epic")) {
+            result = String.format("%d,%s,%s,%s,%s,%s,%d",
                     task.getId(),
                     typeTask,
                     task.getName(),
                     task.getStatus(),
                     task.getSpecification(),
+                    startTime,
+                    durationMinutes
+            );
+        } else {
+            result = String.format("%d,%s,%s,%s,%s,%s,%d,%d",
+                    task.getId(),
+                    typeTask,
+                    task.getName(),
+                    task.getStatus(),
+                    task.getSpecification(),
+                    startTime,
+                    durationMinutes,
                     ((Subtask) task).getEpic().getId()
             );
         }
@@ -220,7 +176,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
          parameters[2] - name,
          parameters[3] - status,
          parameters[4] - Specification,
-         parameters[5] - epic */
+         parameters[5] - startTime,
+         parameters[6] - duration,
+         parameters[7] - epic */
         String typeTask = parameters[1];
         Task task = null;
         switch (typeTask) {
@@ -235,7 +193,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             case "Subtask" -> {
                 task = new Subtask(parameters[2], parameters[4], Status.valueOf(parameters[3]));
                 task.setId(Integer.parseInt(parameters[0]));
-                int idEpic = Integer.parseInt(parameters[5]);
+                int idEpic = Integer.parseInt(parameters[7]);
                 if (epics.containsKey(idEpic)) {
                     //Привязали эпик к подзадаче
                     ((Subtask) task).setEpic(getEpicById(idEpic));
@@ -244,11 +202,18 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 }
             }
         }
+        // инициализируем время и продолжительность
+        if (task != null) {
+            if (!parameters[5].equals("null"))
+                task.setStartTime(parameters[5]);
+            if (!parameters[6].equals("0"))
+                task.setDuration(Long.parseLong(parameters[6]));
+        }
         return task;
     }
 
     //Сохранение менеджера истории
-    public static String toStringHistory(HistoryManager manager) {
+    private static String toStringHistory(HistoryManager manager) {
         List<Task> tasksHistory = manager.getHistory();
         StringBuilder idHistory = new StringBuilder();
         idHistory.append("\n");
@@ -264,7 +229,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     //Восстановление менеджера истории из CSV
-    public static List<Integer> fromStringHistory(String value) {
+    private static List<Integer> fromStringHistory(String value) {
         List<Integer> historyId = new ArrayList<>();
         String[] idHistoryTasks = value.split(",");
         for (String id : idHistoryTasks) {
@@ -279,7 +244,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             while (br.ready()) {
                 String line = br.readLine();
                 if (!line.isBlank()) {
-                    if (!line.equals("id,type,name,status,description,epic")) {
+                    if (!line.equals("id,type,name,status,description,startTime,durationMinutes,epic")) {
                         Task task = fromString(line);
                         switch (task.getClass().getSimpleName()) {
                             case "Task" -> tasks.put(task.getId(), task);

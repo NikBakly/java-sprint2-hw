@@ -1,36 +1,35 @@
 import controller.Managers;
-import controller.TaskManager;
 import model.Epic;
 import model.Status;
 import model.Subtask;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EpicTest {
     private final Managers managers = new Managers();
+    private Epic epic;
+    private Subtask subtask;
+    private Subtask subtask1;
 
     @BeforeEach
     private void beforeEachCreateEpicAndSubtasks() {
-
+        epic = new Epic("Допрыгнуть до кольца");
+        subtask = new Subtask("Разогнаться");
+        subtask1 = new Subtask("Прыгнуть");
     }
 
     @Test
     public void shouldBeEmptyListOfSubtasks() {
         //Пустой список подзадач.
-        Epic epic = new Epic("Допрыгнуть до кольца");
         assertTrue(epic.getSubtasks().isEmpty());
     }
 
     @Test
     public void shouldAllSubtasksWithNewStatus() {
         //Все подзадачи со статусом NEW
-        Epic epic = new Epic("Допрыгнуть до кольца");
-        Subtask subtask = new Subtask("Разогнаться");
-        Subtask subtask1 = new Subtask("Прыгнуть");
-
         epic.getSubtasks().add(subtask);
         epic.getSubtasks().add(subtask1);
 
@@ -45,10 +44,6 @@ public class EpicTest {
     @Test
     public void shouldAllSubtasksWithDoneStatus() {
         //Все подзадачи со статусом DONE
-        Epic epic = new Epic("Допрыгнуть до кольца");
-        Subtask subtask = new Subtask("Разогнаться");
-        Subtask subtask1 = new Subtask("Прыгнуть");
-
         epic.getSubtasks().add(subtask);
         epic.getSubtasks().add(subtask1);
 
@@ -66,10 +61,6 @@ public class EpicTest {
     @Test
     public void shouldAllSubtasksWithInProgressStatus() {
         //Все подзадачи со статусом IN_PROGRESS
-        Epic epic = new Epic("Допрыгнуть до кольца");
-        Subtask subtask = new Subtask("Разогнаться");
-        Subtask subtask1 = new Subtask("Прыгнуть");
-
         epic.getSubtasks().add(subtask);
         epic.getSubtasks().add(subtask1);
 
@@ -91,10 +82,6 @@ public class EpicTest {
     @Test
     public void shouldAllSubtasksWithNewOrDoneStatus() {
         //Все подзадачи со статусом New и Done
-        Epic epic = new Epic("Допрыгнуть до кольца");
-        Subtask subtask = new Subtask("Разогнаться");
-        Subtask subtask1 = new Subtask("Прыгнуть");
-
         epic.getSubtasks().add(subtask);
         epic.getSubtasks().add(subtask1);
 

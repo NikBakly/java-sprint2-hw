@@ -1,5 +1,3 @@
-import controller.FileBackedTasksManager;
-import controller.InMemoryTasksManager;
 import controller.TaskManager;
 import model.Epic;
 import model.Subtask;
@@ -8,25 +6,27 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 abstract public class TaskManagerTest<T extends TaskManager> {
     private final T object;
-    private final DateTimeFormatter formatter = Task.formatter;
     TaskManager taskManager;
+    Epic epic;
+    Subtask drinkWater;
+    Task task;
 
     public TaskManagerTest(T object) {
         this.object = object;
     }
+
     @BeforeEach
-    void createTaskManager(){
+    void createTaskManager() {
         taskManager = object;
+        epic = new Epic("Выпить стакан воды");
+        drinkWater = new Subtask("Выпить воду из стакана");
+        task = new Task("test");
     }
 
     @Test
     void test1_shouldGetAllEpics() {
-        Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
         Epic[] expectedAllEpics = new Epic[]{epic};
@@ -41,7 +41,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test2_shouldFindTaskById() {
-        Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
         Assertions.assertEquals(task, taskManager.findTaskById(task.getId()));
@@ -49,9 +48,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test3_shouldFindSubtaskById() {
-        Epic epic = new Epic("Выпить стакан воды");
-        Subtask drinkWater = new Subtask("Выпить воду из стакана");
-
         taskManager.createNewEpic(epic);
         taskManager.createNewSubtask(drinkWater, epic);
 
@@ -60,8 +56,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test4_shouldFindEpicById() {
-        Epic epic = new Epic("Выпить стакан воды");
-
         taskManager.createNewEpic(epic);
 
         Assertions.assertEquals(epic, taskManager.findEpicById(epic.getId()));
@@ -69,7 +63,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test5_shouldCreateNewTask() {
-        Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
         Task[] expectedAllTasks = new Task[]{task};
@@ -84,10 +77,9 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test6_shouldDoNotCreateNewTask() {
-        Task run = new Task("Пробежать");
-        taskManager.createNewTask(run);
+        taskManager.createNewTask(task);
         //пробуем создать повторную задачу в менеджере
-        taskManager.createNewTask(run);
+        taskManager.createNewTask(task);
         int expectedSize = 1;
         //проверка на размер словаря
         Assertions.assertEquals(
@@ -99,9 +91,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test7_shouldCreateNewSubtask() {
-        Epic epic = new Epic("Выпить стакан воды");
-        Subtask drinkWater = new Subtask("Выпить воду из стакана");
-
         taskManager.createNewEpic(epic);
         taskManager.createNewSubtask(drinkWater, epic);
 
@@ -113,8 +102,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test8_shouldDoNotCreateNewSubtask() {
-        Epic epic = new Epic("Выпить стакан воды");
-        Subtask drinkWater = new Subtask("Выпить воду из стакана");
         taskManager.createNewEpic(epic);
         taskManager.createNewSubtask(drinkWater, epic);
         //пробуем создать повторную подзадачу в менеджере
@@ -130,7 +117,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test9_shouldCreateNewEpic() {
-        Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
         Epic[] expectedAllEpics = new Epic[]{epic};
@@ -145,7 +131,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test10_shouldDoNotCreateNewEpic() {
-        Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
         //пробуем создать повторный эпик в менеджере
         taskManager.createNewEpic(epic);
@@ -160,7 +145,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test11_shouldUpdateTaskById() {
-        Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
         Task expectedTask = new Task("Убрать стакан");
@@ -172,7 +156,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test12_shouldDoNotUpdateTaskById() {
-        Task task = new Task("Выпить стакан воды");
         taskManager.createNewTask(task);
 
         Assertions.assertNull(taskManager.updateTaskById(task.getId() + 1, new Task("Убрать стакан")));
@@ -180,8 +163,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test13_shouldUpdateSubtasksByIdWithoutEpic() {
-        Epic epic = new Epic("Выпить стакан воды");
-        Subtask drinkWater = new Subtask("Выпить воду из стакана");
 
         taskManager.createNewEpic(epic);
         taskManager.createNewSubtask(drinkWater, epic);
@@ -201,10 +182,8 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test14_shouldUpdateSubtasksByIdWithEpic() {
-        Epic readNews = new Epic("Прочитать новости");
-        Subtask readNewsPapers = new Subtask("Читать новостную газету");
-        taskManager.createNewEpic(readNews);
-        taskManager.createNewSubtask(readNewsPapers, readNews);
+        taskManager.createNewEpic(epic);
+        taskManager.createNewSubtask(drinkWater, epic);
 
         //новой эпик и подзадача, которые будут использоваться
         Epic cleanRoom = new Epic("Убраться в комнате");
@@ -214,30 +193,27 @@ abstract public class TaskManagerTest<T extends TaskManager> {
         //связываем с эпиком подзадачу
         expectedSubtask.setEpic(cleanRoom);
         //подготавливаем подзадачу для сравнения
-        expectedSubtask.setId(readNewsPapers.getId());
+        expectedSubtask.setId(drinkWater.getId());
         //проверка с новым эпиком
         Assertions.assertEquals(
                 expectedSubtask,
-                taskManager.updateSubtaskById(readNewsPapers.getId(), expectedSubtask),
+                taskManager.updateSubtaskById(drinkWater.getId(), expectedSubtask),
                 "Подзадачи разные"
         );
     }
 
     @Test
     void test15_shouldDoNotUpdateSubtasksById() {
-        Epic readNews = new Epic("Прочитать новости");
-        Subtask readNewsPapers = new Subtask("Читать новостную газету");
-        taskManager.createNewEpic(readNews);
-        taskManager.createNewSubtask(readNewsPapers, readNews);
+        taskManager.createNewEpic(epic);
+        taskManager.createNewSubtask(drinkWater, epic);
         //проверка на null, если обновить не существующею подзадачу по id
         Assertions.assertNull(
-                taskManager.updateSubtaskById(readNewsPapers.getId() + 1, new Subtask("Убрать стакан"))
+                taskManager.updateSubtaskById(drinkWater.getId() + 1, new Subtask("Убрать стакан"))
         );
     }
 
     @Test
     void test16_shouldUpdateEpicById() {
-        Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
 
         Epic expectedEpic = new Epic("Убрать стакан");
@@ -254,7 +230,6 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test17_shouldDoNotUpdateEpicById() {
-        Epic epic = new Epic("Выпить стакан воды");
         taskManager.createNewEpic(epic);
         //проверка на null, если обновить не существующий эпик по id
         Assertions.assertNull(taskManager.updateEpicById(epic.getId() + 1, new Epic("Убрать стакан")));
@@ -262,46 +237,40 @@ abstract public class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test18_shouldDeleteTaskById() {
-        Task jump = new Task("Прыгнуть");
         //добавили задачу
-        taskManager.createNewTask(jump);
+        taskManager.createNewTask(task);
         //удаляем задачу
-        taskManager.deleteTaskById(jump.getId());
+        taskManager.deleteTaskById(task.getId());
         //проверка
         Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
     }
 
     @Test
     void test19_shouldDeleteSubtaskById() {
-        Epic winOlympics = new Epic("Выиграть олимпиаду");
-        Subtask time = new Subtask("Уложиться во время");
         //добавили эпик и подзадачу
-        taskManager.createNewEpic(winOlympics);
-        taskManager.createNewSubtask(time, winOlympics);
+        taskManager.createNewEpic(epic);
+        taskManager.createNewSubtask(drinkWater, epic);
         //удаляем подзадачу
-        taskManager.deleteSubtaskById(time.getId());
+        taskManager.deleteSubtaskById(drinkWater.getId());
         //проверка, что удалился у эпика
-        Assertions.assertTrue(winOlympics.getSubtasks().isEmpty());
+        Assertions.assertTrue(epic.getSubtasks().isEmpty());
         //проверка, что удалился из словаря менеджера, с помощью обновления, который вернет null, если нет Subtask
-        Assertions.assertNull(taskManager.updateSubtaskById(time.getId(), new Subtask("Выспаться")));
+        Assertions.assertNull(taskManager.updateSubtaskById(drinkWater.getId(), new Subtask("Выспаться")));
     }
 
     @Test
     void test20_shouldDeleteEpicById() {
-        Epic winOlympics = new Epic("Выиграть олимпиаду");
-        Subtask time = new Subtask("Уложиться во время");
         //добавили эпик и подзадачу
-        taskManager.createNewEpic(winOlympics);
-        taskManager.createNewSubtask(time, winOlympics);
+        taskManager.createNewEpic(epic);
+        taskManager.createNewSubtask(drinkWater, epic);
         //удаляем эпик
-        taskManager.deleteEpicById(winOlympics.getId());
+        taskManager.deleteEpicById(epic.getId());
         //проверка, что в словаре менеджера эпика не осталось
         Assertions.assertTrue(taskManager.getAllEpics().isEmpty());
     }
 
     @Test
     void test20_shouldGetHistory() {
-        Task task = new Task("дописать тесты");
         taskManager.createNewTask(task);
         //добавим в историю task
         taskManager.findTaskById(task.getId());

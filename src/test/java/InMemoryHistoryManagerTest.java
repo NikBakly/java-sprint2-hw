@@ -4,26 +4,31 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 
 public class InMemoryHistoryManagerTest {
     private InMemoryHistoryManager inMemoryHistoryManager;
+    private Task test1;
+    private Task test2;
+    private Task test3;
 
     @BeforeEach
     public void createObjectInMemoryHistoryManager() {
         inMemoryHistoryManager = new InMemoryHistoryManager();
+        test1 = new Task("test1");
+        test1.setId(1);
+        test2 = new Task("test2");
+        test2.setId(2);
+        test3 = new Task("test3");
+        test3.setId(3);
     }
 
     @Test
     void test1_shouldReturnEmptyTaskHistory() {
-        Task test1 = new Task("test1");
-
         Assertions.assertNull(inMemoryHistoryManager.getHistory());
     }
 
     @Test
     void test2_shouldHistoryListBeOfSizeOne() {
-        Task test1 = new Task("test1");
         //проверка на дублирование истории
         inMemoryHistoryManager.add(test1);
         inMemoryHistoryManager.add(test1);
@@ -34,13 +39,6 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     void test3_shouldDeletionAtBeginningOfStory() {
-        Task test1 = new Task("test1");
-        test1.setId(1);
-        Task test2 = new Task("test2");
-        test2.setId(2);
-        Task test3 = new Task("test3");
-        test3.setId(3);
-
         inMemoryHistoryManager.add(test1);
         inMemoryHistoryManager.add(test2);
         inMemoryHistoryManager.add(test3);
@@ -58,13 +56,6 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     void test4_shouldDeletionAtEndOfStory() {
-        Task test1 = new Task("test1");
-        test1.setId(1);
-        Task test2 = new Task("test2");
-        test2.setId(2);
-        Task test3 = new Task("test3");
-        test3.setId(3);
-
         inMemoryHistoryManager.add(test1);
         inMemoryHistoryManager.add(test2);
         inMemoryHistoryManager.add(test3);
@@ -82,13 +73,6 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     void test5_shouldDeletingInMiddleOfStory() {
-        Task test1 = new Task("test1");
-        test1.setId(1);
-        Task test2 = new Task("test2");
-        test2.setId(2);
-        Task test3 = new Task("test3");
-        test3.setId(3);
-
         inMemoryHistoryManager.add(test1);
         inMemoryHistoryManager.add(test2);
         inMemoryHistoryManager.add(test3);
@@ -106,12 +90,6 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     void test6_addHistoryWhenSizeHistoryMoreTen() {
-        Task test1 = new Task("test1");
-        test1.setId(1);
-        Task test2 = new Task("test2");
-        test2.setId(2);
-        Task test3 = new Task("test3");
-        test3.setId(3);
         Task test4 = new Task("test4");
         test4.setId(4);
         Task test5 = new Task("test5");

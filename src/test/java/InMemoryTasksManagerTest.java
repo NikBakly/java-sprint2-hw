@@ -1,4 +1,3 @@
-import controller.FileBackedTasksManager;
 import controller.InMemoryTasksManager;
 import controller.TaskManager;
 import model.Epic;
@@ -11,34 +10,44 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManager> {
+    private InMemoryTasksManager taskManager;
+    private final String startTime = "25.03.2022|13:00";
+    Epic epic;
+    Subtask subtask1;
+    Subtask subtask2;
+
+    private Task test1;
+
     public InMemoryTasksManagerTest() {
         super(new InMemoryTasksManager());
     }
-
-    private InMemoryTasksManager taskManager;
 
     @BeforeEach
     void createInMemoryTasksManager() {
         taskManager = new InMemoryTasksManager();
     }
 
-    @Test
-    void test1_shouldReturnLocalDateTimeForTask() {
-        String startTime = "25.03.2022|13:00";
-        Task test1 = new Task("test1");
+    void initEpicAndSubtasks() {
+        epic = new Epic("testEpic");
+        subtask1 = new Subtask("test1");
+        subtask2 = new Subtask("test2");
+    }
+
+    void initTask() {
+        test1 = new Task("test1");
         test1.setStartTime(startTime);
         test1.setDuration(60);
+    }
 
+    @Test
+    void test1_shouldReturnLocalDateTimeForTask() {
+        initTask();
         Assertions.assertEquals("25.03.2022|14:00", test1.getEndTime().format(Task.formatter));
     }
 
     @Test
     void test2_shouldReturnLocalDateTimeForSubtask() {
-        String startTime = "25.03.2022|13:00";
-        Subtask test1 = new Subtask("test1");
-        test1.setStartTime(startTime);
-        test1.setDuration(60);
-
+        initTask();
         Assertions.assertEquals("25.03.2022|14:00", test1.getEndTime().format(Task.formatter));
     }
 
@@ -47,9 +56,7 @@ public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManag
         //проверка корректности времени, когда подзадачи у эпика начинаются в одно время
         TaskManager taskManager = new InMemoryTasksManager();
 
-        Epic epic = new Epic("testEpic");
-        Subtask subtask1 = new Subtask("test1");
-        Subtask subtask2 = new Subtask("test2");
+        initEpicAndSubtasks();
         //Назначаем продолжительность подзадач
         subtask1.setDuration(60);
         subtask2.setDuration(120);
@@ -69,12 +76,9 @@ public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManag
     @Test
     void test4_shouldReturnLocalDateTimeForEpic_WhenSubtaskIsNotFullyDefinedInStartTime() {
         //проверка корректности времени, когда подзадачи у эпика начинаются в одно время
-        String startTime = "25.03.2022|13:00";
         TaskManager taskManager = new InMemoryTasksManager();
 
-        Epic epic = new Epic("testEpic");
-        Subtask subtask1 = new Subtask("test1");
-        Subtask subtask2 = new Subtask("test2");
+        initEpicAndSubtasks();
         //Назначаем продолжительность подзадач
         subtask1.setDuration(60);
         subtask2.setDuration(120);
@@ -96,9 +100,7 @@ public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManag
         String startTime = "25.03.2022|13:00";
         TaskManager taskManager = new InMemoryTasksManager();
 
-        Epic epic = new Epic("testEpic");
-        Subtask subtask1 = new Subtask("test1");
-        Subtask subtask2 = new Subtask("test2");
+        initEpicAndSubtasks();
         //Назначаем продолжительность подзадач
         subtask1.setDuration(60);
         //назначение начало работы
@@ -121,9 +123,7 @@ public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManag
         String startTimeForSubtask2 = "25.03.2022|14:00";
         TaskManager taskManager = new InMemoryTasksManager();
 
-        Epic epic = new Epic("testEpic");
-        Subtask subtask1 = new Subtask("test1");
-        Subtask subtask2 = new Subtask("test2");
+        initEpicAndSubtasks();
         //Назначаем продолжительность подзадач
         subtask1.setDuration(60);
         subtask2.setDuration(120);
@@ -153,7 +153,7 @@ public class InMemoryTasksManagerTest extends TaskManagerTest<InMemoryTasksManag
 
         Task test4 = new Task("test4");
         test4.setStartTime("25.03.2022|16:00");
-        //шпион
+        //шпион, т к не назначено время
         Task test5 = new Task("test5");
 
         taskManager.createNewTask(test1);

@@ -10,7 +10,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     private final T object;
     TaskManager taskManager;
     Epic epic;
-    Subtask drinkWater;
+    Subtask subtask;
     Task task;
 
     public TaskManagerTest(T object) {
@@ -21,7 +21,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     void createTaskManager() {
         taskManager = object;
         epic = new Epic("Выпить стакан воды");
-        drinkWater = new Subtask("Выпить воду из стакана");
+        subtask = new Subtask("Выпить воду из стакана");
         task = new Task("test");
     }
 
@@ -49,9 +49,9 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     @Test
     void test3_shouldFindSubtaskById() {
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
 
-        Assertions.assertEquals(drinkWater, taskManager.findSubtaskById(drinkWater.getId()));
+        Assertions.assertEquals(subtask, taskManager.findSubtaskById(subtask.getId()));
     }
 
     @Test
@@ -92,9 +92,9 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     @Test
     void test7_shouldCreateNewSubtask() {
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
 
-        Subtask[] expectedAllSubtasks = new Subtask[]{drinkWater};
+        Subtask[] expectedAllSubtasks = new Subtask[]{subtask};
         Subtask[] allSubtasks = taskManager.getAllSubtasks(epic.getId()).toArray(Subtask[]::new);
 
         Assertions.assertArrayEquals(expectedAllSubtasks, allSubtasks, "Массивы не равны");
@@ -103,9 +103,9 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     @Test
     void test8_shouldDoNotCreateNewSubtask() {
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
         //пробуем создать повторную подзадачу в менеджере
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
         int expectedSize = 1;
         //проверка на размер словаря
         Assertions.assertEquals(
@@ -165,17 +165,17 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     void test13_shouldUpdateSubtasksByIdWithoutEpic() {
 
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
 
         Subtask expectedSubtask = new Subtask("убрать стакан");
         //подготавливаем подзадачу
         expectedSubtask.setEpic(epic);
-        expectedSubtask.setId(drinkWater.getId());
+        expectedSubtask.setId(subtask.getId());
 
         //проверка без нового эпика
         Assertions.assertEquals(
                 expectedSubtask,
-                taskManager.updateSubtaskById(drinkWater.getId(), expectedSubtask),
+                taskManager.updateSubtaskById(subtask.getId(), expectedSubtask),
                 "Подзадачи разные"
         );
     }
@@ -183,7 +183,7 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     @Test
     void test14_shouldUpdateSubtasksByIdWithEpic() {
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
 
         //новой эпик и подзадача, которые будут использоваться
         Epic cleanRoom = new Epic("Убраться в комнате");
@@ -193,11 +193,11 @@ abstract public class TaskManagerTest<T extends TaskManager> {
         //связываем с эпиком подзадачу
         expectedSubtask.setEpic(cleanRoom);
         //подготавливаем подзадачу для сравнения
-        expectedSubtask.setId(drinkWater.getId());
+        expectedSubtask.setId(subtask.getId());
         //проверка с новым эпиком
         Assertions.assertEquals(
                 expectedSubtask,
-                taskManager.updateSubtaskById(drinkWater.getId(), expectedSubtask),
+                taskManager.updateSubtaskById(subtask.getId(), expectedSubtask),
                 "Подзадачи разные"
         );
     }
@@ -205,10 +205,10 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     @Test
     void test15_shouldDoNotUpdateSubtasksById() {
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
         //проверка на null, если обновить не существующею подзадачу по id
         Assertions.assertNull(
-                taskManager.updateSubtaskById(drinkWater.getId() + 1, new Subtask("Убрать стакан"))
+                taskManager.updateSubtaskById(subtask.getId() + 1, new Subtask("Убрать стакан"))
         );
     }
 
@@ -249,20 +249,20 @@ abstract public class TaskManagerTest<T extends TaskManager> {
     void test19_shouldDeleteSubtaskById() {
         //добавили эпик и подзадачу
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
         //удаляем подзадачу
-        taskManager.deleteSubtaskById(drinkWater.getId());
+        taskManager.deleteSubtaskById(subtask.getId());
         //проверка, что удалился у эпика
         Assertions.assertTrue(epic.getSubtasks().isEmpty());
         //проверка, что удалился из словаря менеджера, с помощью обновления, который вернет null, если нет Subtask
-        Assertions.assertNull(taskManager.updateSubtaskById(drinkWater.getId(), new Subtask("Выспаться")));
+        Assertions.assertNull(taskManager.updateSubtaskById(subtask.getId(), new Subtask("Выспаться")));
     }
 
     @Test
     void test20_shouldDeleteEpicById() {
         //добавили эпик и подзадачу
         taskManager.createNewEpic(epic);
-        taskManager.createNewSubtask(drinkWater, epic);
+        taskManager.createNewSubtask(subtask, epic);
         //удаляем эпик
         taskManager.deleteEpicById(epic.getId());
         //проверка, что в словаре менеджера эпика не осталось

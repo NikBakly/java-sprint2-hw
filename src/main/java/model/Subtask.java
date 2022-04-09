@@ -1,11 +1,10 @@
 package model;
 
-import controller.InMemoryTasksManager;
-
 import java.util.Objects;
 
 public class Subtask extends Task {
     private Epic epic;
+    private int idEpic;
 
     public Subtask(String name, String specification) {
         super(name, specification);
@@ -33,6 +32,15 @@ public class Subtask extends Task {
 
     public void setEpic(Epic epic) {
         this.epic = epic;
+        this.idEpic = epic.getId();
+    }
+
+    public int getIdEpic() {
+        return idEpic;
+    }
+
+    public void setIdEpic(int idEpic) {
+        this.idEpic = idEpic;
     }
 
     @Override

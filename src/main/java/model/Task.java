@@ -20,6 +20,7 @@ public class Task {
     protected Duration duration;
     //дата, когда предполагается приступить к выполнению задачи
     protected LocalDateTime startTime;
+
     //формат дата и времени для работы
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy|HH:mm");
 
@@ -44,11 +45,8 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        if(duration == null)
-            return null;
-        if (startTime != null) {
+        if (startTime != null && duration != null)
             return startTime.plus(duration);
-        }
         return null;
     }
 

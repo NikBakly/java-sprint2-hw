@@ -45,6 +45,15 @@ public interface TaskManager {
 
     void deleteEpicById(int id);
 
+    void deleteAllTasks();
+
+    void deleteAllSubtasks();
+
+    void deleteAllEpics();
+
     //Вывод истории просмотренных задач
     List<Task> history();
+
+    //возвращающий список задач и подзадач в отсортированном порядке по приоритету - то есть по startTime
+    List<Task> getPrioritizedTasks();
 }

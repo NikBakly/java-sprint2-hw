@@ -190,7 +190,7 @@ public class InMemoryTasksManager implements TaskManager {
         taskHistory.remove(id);
         //удаляем из словаря задач определенную задачу по id
         tasks.remove(id);
-        System.out.println("Успешное удалиние Задачи id = " + id);
+        System.out.println("Успешное удаление Задачи id = " + id);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class InMemoryTasksManager implements TaskManager {
         epics.get(subtasks.get(id).getEpic().getId()).getSubtasks().remove(subtasks.get(id));
         //удаляем из словаря подзадач определенную подзадачу по id
         subtasks.remove(id);
-        System.out.println("Успешное удалиние Подзадачи id = " + id);
+        System.out.println("Успешное удаление Подзадачи id = " + id);
     }
 
     @Override
@@ -226,34 +226,40 @@ public class InMemoryTasksManager implements TaskManager {
         return taskHistory.getHistory();
     }
 
-    //проверка пересечения
-    private void checkingIntersection(Task task) {
-        boolean isIntersection = false;
-        for (Task prioritizedTask : getPrioritizedTasks()) {
-            if (
-                    !task.equals(prioritizedTask)
-                    && task.getStartTime() != null
-                    && prioritizedTask.getEndTime() != null
-                    && (task.getStartTime().equals(prioritizedTask.getEndTime())
-                        || task.getStartTime().isBefore(prioritizedTask.getEndTime()))
-            ) {
-                isIntersection = true;
-//                break;
-            }
+    @Override
+    public void deleteAllTasks() {
+        ArrayList<Integer> idTasks = new ArrayList<>(tasks.keySet());
+        //Удаляем в цикле все задачи по id
+        for (Integer idTask : idTasks) {
+            deleteTaskById(idTask);
         }
-        if (isIntersection) {
-            System.out.println(
-                    "Обнаружилось пересечение по времени у объекта с id: " + task.getId()
-                            + ", нужно поменять продолжительность или время старта"
-            );
-            //удаление из дерева множеств, т пересекается с другими задачами
-            sortedTasks.remove(task);
-            //сброс времени и продолжительности, чтобы задачи не пересекались
-            task.resetStartTimeAndDuration();
-        }
+
+        System.out.println("Все задачи удалены");
     }
 
-    //возвращающий список задач и подзадач в отсортированном порядке по приоритету - то есть по startTime
+    @Override
+    public void deleteAllSubtasks() {
+        ArrayList<Integer> idSubtasks = new ArrayList<>(subtasks.keySet());
+        //Удаляем в цикле все задачи по id
+        for (Integer idSubtask : idSubtasks) {
+            deleteTaskById(idSubtask);
+        }
+
+        System.out.println("Все подзадачи удалены");
+    }
+
+    @Override
+    public void deleteAllEpics() {
+        ArrayList<Integer> idEpics = new ArrayList<>(epics.keySet());
+        //Удаляем в цикле все задачи по id
+        for (Integer idEpic : idEpics) {
+            deleteTaskById(idEpic);
+        }
+
+        System.out.println("Все эпики удалены");
+    }
+
+    @Override
     public List<Task> getPrioritizedTasks() {
         //если множество определенно и размер множества должно сор
         if (sortedTasks != null && sortedTasks.size() == getAllTasks().size()) {
@@ -269,6 +275,33 @@ public class InMemoryTasksManager implements TaskManager {
             sortedTasks.addAll(allTasks);
             allTasks.addAll(getListTasksWithoutStarTime());
             return allTasks;
+        }
+    }
+
+    //проверка пересечения
+    private void checkingIntersection(Task task) {
+        boolean isIntersection = false;
+        for (Task prioritizedTask : getPrioritizedTasks()) {
+            if (
+                    !task.equals(prioritizedTask)
+                    && task.getStartTime() != null
+                    && prioritizedTask.getEndTime() != null
+                    && (task.getStartTime().equals(prioritizedTask.getEndTime())
+                        || task.getStartTime().isBefore(prioritizedTask.getEndTime()))
+            ) {
+                isIntersection = true;
+                break;
+            }
+        }
+        if (isIntersection) {
+            System.out.println(
+                    "Обнаружилось пересечение по времени у объекта с id: " + task.getId()
+                            + ", нужно поменять продолжительность или время старта"
+            );
+            //удаление из дерева множеств, т пересекается с другими задачами
+            sortedTasks.remove(task);
+            //сброс времени и продолжительности, чтобы задачи не пересекались
+            task.resetStartTimeAndDuration();
         }
     }
 

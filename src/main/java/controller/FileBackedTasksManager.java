@@ -6,17 +6,16 @@ import model.Subtask;
 import model.Task;
 
 import java.io.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
-    private final File file;
+    protected final String path;
     public static final String START_LINE = "id,type,name,status,description,startTime,durationMinutes,epic\n";
 
 
     public FileBackedTasksManager(String path) {
-        file = new File(path);
+        this.path = path;
     }
 
     @Override
@@ -104,8 +103,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     //Сохраняет текущие состояние менеджера в указанный файл
-    private void save() {
-        try (Writer fileWriterStart = new FileWriter(file)) {
+    protected void save() {
+        try (Writer fileWriterStart = new FileWriter(path)) {
             fileWriterStart.write(START_LINE);
 
             for (Task task : tasks.values()) {
@@ -121,6 +120,18 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 fileWriterStart.write(toStringHistory(taskHistory));
         } catch (IOException e) {
             throw new ManagerSaveException();
+        }
+    }
+
+    //Добавляет эпик в подзадачу по id эпику
+    protected void addEpicInSubtaskById(Subtask subtask, int idEpic){
+        subtask.setEpic(epics.get(idEpic));
+    }
+
+    //Добавить в подзадачу эпик по id эпика, через сам эпик
+    protected void addSubtasksInEpic(Epic epic){
+        for (Subtask subtask : epic.getSubtasks()){
+            addEpicInSubtaskById(subtask, epic.getId());
         }
     }
 
@@ -240,7 +251,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     //считывание информации из файла
     public void downloadFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             while (br.ready()) {
                 String line = br.readLine();
                 if (!line.isBlank()) {
@@ -276,10 +287,4 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             e.printStackTrace();
         }
     }
-
-    public File getFile() {
-        return file;
-    }
-
-
 }

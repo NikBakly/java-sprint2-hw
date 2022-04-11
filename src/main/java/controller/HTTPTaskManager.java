@@ -1,6 +1,6 @@
 package controller;
 
-import KVServerClient.KVTaskClient;
+import clients.KVTaskClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import gson.deserialize.DurationJsonDeserializer;
@@ -15,7 +15,6 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-import javax.lang.model.element.NestingKind;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.Duration;

@@ -13,7 +13,12 @@ public class EpicJsonSerializer implements JsonSerializer<Epic> {
         JsonObject result = new JsonObject();
 
         result.addProperty("Name", epic.getName());
-        result.addProperty("Specification", epic.getSpecification());
+
+        if (epic.getSpecification() == null)
+            result.addProperty("Specification", "null");
+        else
+            result.addProperty("Specification", epic.getSpecification());
+
         result.addProperty("Id", epic.getId());
         result.addProperty("Status", String.valueOf(epic.getStatus()));
         if (epic.getDuration() == null)

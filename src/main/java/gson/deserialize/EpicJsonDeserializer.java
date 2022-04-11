@@ -4,7 +4,6 @@ import com.google.gson.*;
 import model.Epic;
 import model.Status;
 import model.Subtask;
-import model.Task;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
@@ -16,7 +15,8 @@ public class EpicJsonDeserializer implements JsonDeserializer<Epic> {
         JsonObject jsonObject = json.getAsJsonObject();
 
         Epic epic = new Epic(jsonObject.get("Name").getAsString());
-        epic.setSpecification(jsonObject.get("Specification").getAsString());
+        if (!jsonObject.get("Specification").getAsString().equals("null"))
+            epic.setSpecification(jsonObject.get("Specification").getAsString());
         epic.setId(jsonObject.get("Id").getAsInt());
         epic.setStatus(Status.valueOf(jsonObject.get("Status").getAsString()));
 

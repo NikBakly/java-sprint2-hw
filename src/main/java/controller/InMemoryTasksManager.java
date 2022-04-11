@@ -240,9 +240,9 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void deleteAllSubtasks() {
         ArrayList<Integer> idSubtasks = new ArrayList<>(subtasks.keySet());
-        //Удаляем в цикле все задачи по id
+        //Удаляем в цикле все задачи по id в словаре
         for (Integer idSubtask : idSubtasks) {
-            deleteTaskById(idSubtask);
+            deleteSubtaskById(idSubtask);
         }
 
         System.out.println("Все подзадачи удалены");
@@ -253,7 +253,7 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Integer> idEpics = new ArrayList<>(epics.keySet());
         //Удаляем в цикле все задачи по id
         for (Integer idEpic : idEpics) {
-            deleteTaskById(idEpic);
+            deleteEpicById(idEpic);
         }
 
         System.out.println("Все эпики удалены");

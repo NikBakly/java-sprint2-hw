@@ -19,82 +19,12 @@ public class KVServer {
         API_KEY = generateApiKey();
         try {
             server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
-            server.createContext("/register", (h) -> {
-                try {
-                    System.out.println("\n/register");
-                    if ("GET".equals(h.getRequestMethod())) {
-                        sendText(h, API_KEY);
-                    } else {
-                        System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
-                        h.sendResponseHeaders(405, 0);
-                    }
-                } finally {
-                    h.close();
-                }
-            });
-            server.createContext("/save", (h) -> {
-                try {
-                    System.out.println("\n/save");
-                    if (!hasAuth(h)) {
-                        System.out.println("Запрос не авторизован, нужен параметр в query API_KEY со значением апи-ключа");
-                        h.sendResponseHeaders(403, 0);
-                        return;
-                    }
-                    if ("POST".equals(h.getRequestMethod())) {
-                        String key = h.getRequestURI().getPath().substring("/save/".length());
-                        if (key.isEmpty()) {
-                            System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-                            h.sendResponseHeaders(400, 0);
-                            return;
-                        }
-                        String value = readText(h);
-                        if (value.isEmpty()) {
-                            System.out.println("Value для сохранения пустой. value указывается в теле запроса");
-                            h.sendResponseHeaders(400, 0);
-                            return;
-                        }
-                        data.put(key, value);
-                        System.out.println("Значение для ключа " + key + " успешно обновлено!");
-                        h.sendResponseHeaders(200, 0);
-                    } else {
-                        System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
-                        h.sendResponseHeaders(405, 0);
-                    }
-                } finally {
-                    h.close();
-                }
-            });
-            server.createContext("/load", (h) -> {
-                if (!hasAuth(h)) {
-                    System.out.println("Запрос не авторизован, нужен параметр в query API_KEY со значением апи-ключа");
-                    h.sendResponseHeaders(403, 0);
-                    return;
-                }
-                if ("GET".equals(h.getRequestMethod())) {
-                    String key = h.getRequestURI().getPath().substring("/load/".length());
-                    if (key.isEmpty()) {
-                        System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-                        h.sendResponseHeaders(400, 0);
-                        return;
-                    }
-                    if (!data.containsKey(key)) {
-                        System.out.println("Ключ " + key + " не существует в базе");
-                        h.sendResponseHeaders(404, 0);
-                        return;
-                    }
-                    sendText(h, data.get(key));
-                    System.out.printf("Значение для ключа %s успешно обработано!\n", key);
-                    h.sendResponseHeaders(200, 0);
-
-                } else {
-                    System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
-                    h.sendResponseHeaders(405, 0);
-                }
-            });
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+        triggerRegisterContext();
+        triggerSaveContext();
+        triggerLoadContext();
     }
 
     public void start() {
@@ -109,6 +39,83 @@ public class KVServer {
         System.out.println("Не работает в браузере http://localhost:" + PORT + "/");
         System.out.println("API_KEY: " + API_KEY);
         server.stop(0);
+    }
+
+    private void triggerRegisterContext() {
+        server.createContext("/register", (h) -> {
+            try (h) {
+                System.out.println("\n/register");
+                if ("GET".equals(h.getRequestMethod())) {
+                    sendText(h, API_KEY);
+                } else {
+                    System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
+                    h.sendResponseHeaders(405, 0);
+                }
+            }
+        });
+    }
+
+    private void triggerSaveContext() {
+        server.createContext("/save", (h) -> {
+            try (h) {
+                System.out.println("\n/save");
+                if (!hasAuth(h)) {
+                    System.out.println("Запрос не авторизован, нужен параметр в query API_KEY со значением апи-ключа");
+                    h.sendResponseHeaders(403, 0);
+                    return;
+                }
+                if ("POST".equals(h.getRequestMethod())) {
+                    String key = h.getRequestURI().getPath().substring("/save/".length());
+                    if (key.isEmpty()) {
+                        System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
+                        h.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    String value = readText(h);
+                    if (value.isEmpty()) {
+                        System.out.println("Value для сохранения пустой. value указывается в теле запроса");
+                        h.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    data.put(key, value);
+                    System.out.println("Значение для ключа " + key + " успешно обновлено!");
+                    h.sendResponseHeaders(200, 0);
+                } else {
+                    System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
+                    h.sendResponseHeaders(405, 0);
+                }
+            }
+        });
+    }
+
+    private void triggerLoadContext() {
+        server.createContext("/load", (h) -> {
+            if (!hasAuth(h)) {
+                System.out.println("Запрос не авторизован, нужен параметр в query API_KEY со значением апи-ключа");
+                h.sendResponseHeaders(403, 0);
+                return;
+            }
+            if ("GET".equals(h.getRequestMethod())) {
+                String key = h.getRequestURI().getPath().substring("/load/".length());
+                if (key.isEmpty()) {
+                    System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
+                    h.sendResponseHeaders(400, 0);
+                    return;
+                }
+                if (!data.containsKey(key)) {
+                    System.out.println("Ключ " + key + " не существует в базе");
+                    h.sendResponseHeaders(404, 0);
+                    return;
+                }
+                sendText(h, data.get(key));
+                System.out.printf("Значение для ключа %s успешно обработано!\n", key);
+                h.sendResponseHeaders(200, 0);
+
+            } else {
+                System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
+                h.sendResponseHeaders(405, 0);
+            }
+        });
     }
 
     private String generateApiKey() {
